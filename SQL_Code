@@ -1,0 +1,100 @@
+-- 1. Salary VS Employee Satisfaction
+
+SELECT
+	Salary,
+	EmpSatisfaction AS Employee_Satisfaction
+FROM PortfolioProjectHR..hrdata
+ORDER BY Salary DESC;
+
+-- 2. Salary VS Marital Status
+
+SELECT
+	COUNT(MarriedID) as num_relationship,
+	(CASE
+	WHEN MarriedID = 1
+	THEN 'married'
+	WHEN MarriedID = 0
+	THEN 'not married'
+	END) AS RelationshipStatus,
+	MaritalDesc,
+	AVG(Salary) AS average_salary
+FROM PortfolioProjectHR..hrdata
+GROUP BY MarriedID, MaritalDesc
+ORDER BY average_salary DESC;
+
+-- 3. Salary VS Performance Score
+
+SELECT
+	PerformanceScore,
+	AVG(Salary) AS average_salary
+FROM PortfolioProjectHR..hrdata
+GROUP BY PerformanceScore;
+
+-- 4. Salary VS Position
+
+SELECT
+	COUNT(Position) AS num_of_positions,
+	Position,
+	AVG(Salary) AS average_salary
+FROM PortfolioProjectHR..hrdata
+WHERE DateofTermination IS NULL
+	AND EmploymentStatus = 'Active'
+GROUP BY Position
+ORDER BY average_salary DESC;
+
+-- 5. Salary VS Absences
+
+SELECT
+	Absences,
+	AVG(Salary) AS average_salary
+FROM PortfolioProjectHR..hrdata
+GROUP BY Absences
+ORDER BY average_salary DESC;
+
+-- 6. Absences VS Term Reason
+
+SELECT
+	TermReason,
+	AVG(Absences) AS average_absences
+FROM PortfolioProjectHR..hrdata
+GROUP BY TermReason
+ORDER BY average_absences DESC;
+
+-- 7. Absences VS Employee Satisfaction - CURRENT EMPLOYEES
+
+SELECT
+	Absences,
+	COUNT(Absences) AS num_of_employees,
+	AVG(EmpSatisfaction) AS avg_employee_satisfaction
+FROM PortfolioProjectHR..hrdata
+WHERE EmploymentStatus = 'Active'
+GROUP BY Absences
+ORDER BY avg_employee_satisfaction DESC;
+
+-- 8. Absences VS Employee Satisfaction - FORMER EMPLOYEES
+
+SELECT
+	Absences,
+	COUNT(Absences) AS num_of_employees,
+	AVG(EmpSatisfaction) AS avg_former_employee_satisfaction
+FROM PortfolioProjectHR..hrdata
+WHERE EmploymentStatus != 'Active'
+GROUP BY Absences
+ORDER BY avg_former_employee_satisfaction DESC;
+
+-- 9. Absences per employee VS Manager ID - CURRENT EMPLOYEES
+
+SELECT
+	(CASE
+	WHEN ManagerID IS NOT NULL
+	THEN ManagerID
+	ELSE 39
+	END) AS ManagerID,
+	Department,
+	SUM(Absences) AS total_absences,
+	COUNT(*) AS num_of_employees,
+	SUM(Absences) / COUNT(*) AS average_absences_per_employee
+FROM PortfolioProjectHR..hrdata
+WHERE EmploymentStatus = 'Active'
+GROUP BY ManagerID, Department
+ORDER BY average_absences_per_employee DESC;
